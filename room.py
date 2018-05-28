@@ -251,12 +251,12 @@ class Room:
 
 	def addCorridor(self):
 		randSize = rand(CORRIDOR_MIN, CORRIDOR_MAX)
-		print("X")
-		print(X_MAX)
-		print(self.w + randSize)
-		print("Y")
-		print(Y_MAX)
-		print(self.h + randSize)
+		# print("X")
+		# print(X_MAX)
+		# print(self.w + randSize)
+		# print("Y")
+		# print(Y_MAX)
+		# print(self.h + randSize)
 		cDir = rand(3, 3)
 
 		array = []

@@ -9,32 +9,31 @@ from tile import *
 BIRTH = 3
 DEATH = 1
 
-ENV_TYPES = [
-	{
-		'shallowName': 'grass',
-		'shallowChance': 3,
-		'shallowCycles':6,
-		'shallowBirth':2,
-		'shallowDeath':1,
-		'deepName': 'tall grass',
-		'deepChance':10,
-		'deepCycles':2,
-		'deepBirth':2,
-		'deepDeath':1
-	},
-	{
-		'shallowName': 'water',
-		'shallowChance': 2,
-		'shallowCycles':6,
-		'shallowBirth':2,
-		'shallowDeath':1,
-		'deepName': 'deep water',
-		'deepChance':10,
-		'deepCycles':2,
-		'deepBirth':2,
-		'deepDeath':1
-	}
-]
+GRASS_CHANCE = 20
+GRASS_CYCLES = 2
+GRASS_BIRTH = 3
+GRASS_DEATH = 1
+T_GRASS_CHANCE = 10
+T_GRASS_CYCLES = 2
+T_GRASS_BIRTH = 2
+T_GRASS_DEATH = 1
+
+WATER_CHANCE = 10
+WATER_CYCLES = 10
+WATER_BIRTH = 3
+WATER_DEATH = 1
+D_WATER_CHANCE = 10
+D_WATER_CYCLES = 2
+D_WATER_BIRTH = 2
+D_WATER_DEATH = 1
+
+MUSHROOM_MIN = 5
+MUSHROOM_MAX = 8
+MUSHROOM_FLOOR_CHANCE = 30
+MUSHROOM_CHANCE = 15
+MUSHROOM_FLOOR_CYCLES = 2
+MUSHROOM_BIRTH = 3
+MUSHROOM_DEATH = 1
 
 class Level:
 	def __init__(self, screen, board):
@@ -55,8 +54,6 @@ class Level:
 				row.append(Tile(screen, tileType, j, i))
 			self.tiles.append(row)
 
-		self.addEnvironments()
-		self.addEnvironments()
 		self.addEnvironments()
 
 		self.addFlavors()
@@ -92,18 +89,40 @@ class Level:
 					n += 1
 		return n
 
+	def getSurroundingSub(self, j, i, a, h, w):
+		jMin = -1 if j > 0 else 0
+		jMax = 1 if j < h - 1 else 0
+		iMin = -1 if i > 0 else 0
+		iMax = 1 if i < w - 1 else 0
+
+		n = 0
+		for jj in range(jMin, jMax + 1):
+			for ii in range(iMin, iMax + 1):
+				if a[jj + j][ii + i] == 1 and not(jj == 0 and ii == 0):
+					n += 1
+		return n
+
 	def render(self):
 		for j in range(Y_MAX):
 			for i in range(X_MAX):
 				self.tiles[j][i].render()
 
 	def addEnvironments(self):
-		randEnvType = ENV_TYPES[rand(0, len(ENV_TYPES) - 1)]
-		#randEnvType = ENV_TYPES[0]
+		#the nice thing about doing it this way, is that different level types can call
+		#the following functions different number of times
+		self.addWater()
+		self.addGrass()
 
+		self.addMushrooms('red')
+		self.addMushrooms('purple')
+
+	def addFlavors(self):
+		pass
+
+	def addGrass(self):
 		#PROCESS SHALLOW
-		shallowLayer = self.autoArray(randEnvType['shallowChance'])
-		shallowCycles = randEnvType['shallowCycles']
+		shallowLayer = self.autoArray(GRASS_CHANCE)
+		shallowCycles = GRASS_CYCLES
 		while shallowCycles > 0:
 			shallowCycles -= 1
 			array = copy.deepcopy(shallowLayer)
@@ -111,15 +130,15 @@ class Level:
 			for j in range(Y_MAX):
 				for i in range(X_MAX):
 					n = self.getSurrounding(j, i, shallowLayer)
-					if shallowLayer[j][i] == 1 and n <= randEnvType['shallowDeath']:
+					if shallowLayer[j][i] == 1 and n <= GRASS_DEATH:
 						array[j][i] = 0
-					elif shallowLayer[j][i] == 0 and n >= randEnvType['shallowBirth']:
+					elif shallowLayer[j][i] == 0 and n >= GRASS_BIRTH:
 						array[j][i] = 1
 			shallowLayer = copy.deepcopy(array)
 
 		#PROCESS DEEP
-		deepLayer = self.autoArray(randEnvType['deepChance'])
-		deepCycles = randEnvType['deepCycles']
+		deepLayer = self.autoArray(T_GRASS_CHANCE)
+		deepCycles = T_GRASS_CYCLES
 		while deepCycles > 0:
 			deepCycles -= 1
 			array = copy.deepcopy(deepLayer)
@@ -127,22 +146,119 @@ class Level:
 			for j in range(Y_MAX):
 				for i in range(X_MAX):
 					n = self.getSurrounding(j, i, deepLayer)
-					if deepLayer[j][i] == 1 and n <= randEnvType['deepDeath']:
+					if deepLayer[j][i] == 1 and n <= T_GRASS_DEATH:
 						array[j][i] = 0
-					elif deepLayer[j][i] == 0 and n >= randEnvType['deepBirth']:
+					elif deepLayer[j][i] == 0 and n >= T_GRASS_BIRTH:
 						array[j][i] = 1
 			deepLayer = copy.deepcopy(array)
 
 		for j in range(Y_MAX):
 			for i in range(X_MAX):
 				if self.typeAt(j, i, 'floor') and deepLayer[j][i] == 1 and shallowLayer[j][i] == 1:
-					self.setType(j, i, randEnvType['deepName'])
-				if self.typeAt(j, i, 'floor') and shallowLayer[j][i] == 1:
-					self.setType(j, i, randEnvType['shallowName'])
-				# if shallowLayer[j][i] == 1:
-				# 	self.setType(j, i, randEnvType['shallowName'])
-				# if deepLayer[j][i] == 1:
-				# 	self.setType(j, i, randEnvType['deepName'])
+					self.setType(j, i, 'tall grass')
+				elif self.typeAt(j, i, 'floor') and shallowLayer[j][i] == 1:
+					self.setType(j, i, 'grass')
 
-	def addFlavors(self):
-		pass
+	def addWater(self):
+		#PROCESS SHALLOW
+		shallowLayer = self.autoArray(WATER_CHANCE)
+		shallowCycles = WATER_CYCLES
+		while shallowCycles > 0:
+			shallowCycles -= 1
+			array = copy.deepcopy(shallowLayer)
+
+			for j in range(Y_MAX):
+				for i in range(X_MAX):
+					n = self.getSurrounding(j, i, shallowLayer)
+					if shallowLayer[j][i] == 1 and n <= WATER_DEATH:
+						array[j][i] = 0
+					elif shallowLayer[j][i] == 0 and n >= WATER_BIRTH:
+						array[j][i] = 1
+			shallowLayer = copy.deepcopy(array)
+
+		#PROCESS DEEP
+		deepLayer = self.autoArray(D_WATER_CHANCE)
+		deepCycles = D_WATER_CYCLES
+		while deepCycles > 0:
+			deepCycles -= 1
+			array = copy.deepcopy(deepLayer)
+
+			for j in range(Y_MAX):
+				for i in range(X_MAX):
+					n = self.getSurrounding(j, i, deepLayer)
+					if deepLayer[j][i] == 1 and n <= D_WATER_DEATH:
+						array[j][i] = 0
+					elif deepLayer[j][i] == 0 and n >= D_WATER_BIRTH:
+						array[j][i] = 1
+			deepLayer = copy.deepcopy(array)
+
+		for j in range(Y_MAX):
+			for i in range(X_MAX):
+				if self.typeAt(j, i, 'floor') and deepLayer[j][i] == 1 and shallowLayer[j][i] == 1:
+					self.setType(j, i, 'deep water')
+				elif self.typeAt(j, i, 'floor') and shallowLayer[j][i] == 1:
+					self.setType(j, i, 'water')
+
+				# if deepLayer[j][i] == 1 and shallowLayer[j][i] == 1:
+				# 	self.setType(j, i, 'deep water')
+				# elif shallowLayer[j][i] == 1:
+				# 	self.setType(j, i, 'water')
+
+	def addMushrooms(self, mType):
+		randW = rand(MUSHROOM_MIN, MUSHROOM_MAX)
+		randH = rand(MUSHROOM_MIN, MUSHROOM_MAX)
+		shallowLayer = []
+		for j in range(randH):
+			row = []
+			for i in range(randW):
+				if chance() < MUSHROOM_FLOOR_CHANCE:
+					row.append(1)
+				else:
+					row.append(0)
+			shallowLayer.append(row)
+
+		deepLayer = []
+		for j in range(randH):
+			row = []
+			for i in range(randW):
+				if chance() < MUSHROOM_CHANCE:
+					row.append(1)
+				else:
+					row.append(0)
+			deepLayer.append(row)
+
+		shallowCycles = MUSHROOM_FLOOR_CYCLES
+		while shallowCycles > 0:
+			shallowCycles -= 1
+			array = copy.deepcopy(shallowLayer)
+
+			for j in range(randH):
+				for i in range(randW):
+					n = self.getSurroundingSub(j, i, shallowLayer, randH, randW)
+					if shallowLayer[j][i] == 1 and n <= MUSHROOM_DEATH:
+						array[j][i] = 0
+					elif shallowLayer[j][i] == 0 and n >= MUSHROOM_BIRTH:
+						array[j][i] = 1
+			shallowLayer = copy.deepcopy(array)
+
+		randX = 0
+		randY = 0
+
+		numTries = 20
+		while numTries > 0:
+			
+			numTries -= 1
+			randX = rand(0, X_MAX - randW)
+			randY = rand(0, Y_MAX - randH)
+
+			#try to at least place rand point on a floor tile
+			if self.typeAt(j + randY, i + randX, 'floor') or self.typeAt(j + randY, i + randX, 'grass'):
+				numTries = 0
+
+		for j in range(randH):
+			for i in range(randW):
+				if self.typeAt(j + randY, i + randX, 'floor') or self.typeAt(j + randY, i + randX, 'grass'):
+					if deepLayer[j][i] == 1 and shallowLayer[j][i] == 1:
+						self.setType(j + randY, i + randX, mType + ' mushroom')
+					elif shallowLayer[j][i] == 1:
+						self.setType(j + randY, i + randX, mType + ' mushroom floor')

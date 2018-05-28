@@ -33,3 +33,10 @@ The grid created by the board object is passed to the level object (in level.py)
 The level now attempts to generate environments by choosing cell auto parameters from a list of environment types. The level creates 2 new grids (shallow and deep) of the same width and height of the level and populates each with noise (1's and 0's). Alive shallow grid tiles are placed into the grid if the level grid contains a floor in their location. Alive deep tiles are then placed if they exist where shallow tiles have been placed. These tiles are then converted to visual representations specified by the environment type (as of now, short/ tall grass, or shallow/ deep water).
 
 The level now attempts to generate flavors, which are smaller and fewer than environments.
+
+
+## Mechanics
+
+#### Mushrooms
+
+Mushrooms spawn randomly throughout the level. Different colors have different functions. It is possible to see 'mushroom ground' tiles with no actual mushrooms present. The user may plant an existing mushroom at on a 'mushroom ground' tile of the same color, and one will eventually spawn in an adjacent open space.

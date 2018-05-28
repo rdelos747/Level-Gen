@@ -13,8 +13,7 @@ TYPES = {
 			'000055', 
 			'000055',
 			'222222',
-			'666666',
-			'220022',
+			'666666'
 		],
 		'background': [FLOOR_COLOR],
 		'font': FONT_REG
@@ -82,6 +81,54 @@ TYPES = {
 			'057D9F',
 			'64AAD0',
 		],
+		'font': FONT_REG
+	},
+	'red mushroom floor': {
+		'icon': '.',
+		'color': [
+			'ff0000',
+			'B52D43',
+			'970026',
+			'F10026',
+			'BF5730',
+			'A62D00'
+		],
+		'background': [FLOOR_COLOR],
+		'font': FONT_REG
+	},
+	'red mushroom': {
+		'icon': '*',
+		'color': [
+			'ff0000',
+			'B52D43',
+			'970026',
+			'F10026',
+			'BF5730',
+			'A62D00'
+		],
+		'background': [FLOOR_COLOR],
+		'font': FONT_REG
+	},
+	'purple mushroom floor': {
+		'icon': '.',
+		'color': [
+			'C936D3',
+			'65016C',
+			'77207D',
+			'7908AA',
+		],
+		'background': [FLOOR_COLOR],
+		'font': FONT_REG
+	},
+	'purple mushroom': {
+		'icon': '*',
+		'color': [
+			'C936D3',
+			'65016C',
+			'77207D',
+			'7908AA',
+		],
+		'background': [FLOOR_COLOR],
 		'font': FONT_REG
 	}
 }
