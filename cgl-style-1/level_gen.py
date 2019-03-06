@@ -18,7 +18,7 @@ board = Board()
 level = Level(SCREEN, board)
 
 SCREEN.fill(SCREEN_BK)
-level.render()
+#level.render()
 pygame.display.update()
 
 while True:
